@@ -1,0 +1,59 @@
+{
+    "name": "yaroslawww/laravel-recently-viewed",
+    "description": "Package to make quickly recently viewed functionality",
+    "keywords": [
+        "recently-viewed",
+        "laravel-recently-viewed"
+    ],
+    "homepage": "https://github.com/yaroslawww/laravel-recently-viewed",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Yaroslav Georgitsa",
+            "email": "yaroslav.georgitsa@gmail.com",
+            "homepage": "https://github.com/yaroslawww",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.16",
+        "orchestra/testbench": "^5.0",
+        "phpunit/phpunit": "^9.0",
+        "psalm/plugin-laravel": "^1.2",
+        "vimeo/psalm": "^3.11"
+    },
+    "autoload": {
+        "psr-4": {
+            "RecentlyViewed\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "RecentlyViewed\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "psalm": "vendor/bin/psalm",
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "format": "vendor/bin/php-cs-fixer fix --allow-risky=yes"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "RecentlyViewed\\ServiceProvider"
+            ],
+            "aliases": {
+                "RecentlyViewed": "RecentlyViewed\\Facades\\RecentlyViewed"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
