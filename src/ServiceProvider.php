@@ -15,6 +15,11 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
                 __DIR__ . '/../resources/views' => base_path('resources/views/vendor/recently-viewed'),
             ], 'views');
 
+            if (!class_exists('CreateRecentViewsTables')) {
+                $this->publishes([
+                    __DIR__ . '/../database/migrations/create_recent_views_tables.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_recent_views_tables.php'),
+                ], 'migrations');
+            }
 
             $this->commands([
             ]);

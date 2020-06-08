@@ -1,7 +1,9 @@
 # Laravel: Recently Viewed
-Add functionality to save/get in session recently viewed entities (**Note**: on the current version used jusr user session without any persist storage)
+Add functionality to save/get in session recently viewed entities
 
 You can track any number of entities. Each list will be saved separately.
+
+## Session storage (without persist)
 
 For example:
 ```
@@ -53,17 +55,10 @@ class Product extends Model implements Viewable
 // or
 
 use RecentlyViewed\Models\Contracts\Viewable;
-use RecentlyViewed\Models\Traits\CanBeViewed;
 
 class Property implements Viewable
-{
-    use CanBeViewed;
-
-     // ...
-
-    public function getKey() {
-       return $this->ID;
-    }
+{ 
+   // implement interface
 }
 ```
 
@@ -93,6 +88,45 @@ class ProductsViewComposer
             'recentlyViewedProductsFiltered' => \RecentlyViewed\Facades\RecentlyViewed::getQuery(Product::class)
             ->where('not_display_in_recently_list', false)->get(),
         ]);
+    }
+}
+```
+
+## Add persist storage
+
+You can publish and run the migrations with:
+
+```bash
+php artisan vendor:publish --provider="RecentlyViewed\ServiceProvider" --tag="migrations"
+php artisan migrate
+```
+
+Configuration in *.env*
+```dotenv
+RECENTLY_VIEWED_PERSIST_ENABLED=true
+```
+
+```php
+use RecentlyViewed\Models\Contracts\Viewer;
+use RecentlyViewed\Models\Traits\CanView;
+
+class User extends Authenticatable implements Viewer
+{
+    use CanView;
+
+    // ...
+}
+```
+
+Add "merge" method after login (if you want merge saved data before login and already stored data)
+```php
+class LoginController extends Controller
+{
+    // ...
+
+    protected function authenticated(Request $request, $user)
+    {
+        \RecentlyViewed::mergePersistToCurrentSession();
     }
 }
 ```
