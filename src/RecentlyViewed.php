@@ -75,4 +75,33 @@ class RecentlyViewed
 
         return collect([]);
     }
+
+    /**
+     * @param Viewable|string $viewable
+     * @return RecentlyViewed
+     * @throws ShouldBeViewableException
+     */
+    public function clear($viewable): RecentlyViewed
+    {
+        if (! ($viewable instanceof Viewable) && is_string($viewable)) {
+            $viewable = new $viewable();
+        }
+        if (! ($viewable instanceof Viewable)) {
+            throw new ShouldBeViewableException('Entity should implement Viewable interface');
+        }
+
+        session()->forget(config('recently-viewed.session_prefix') . '.' . get_class($viewable));
+
+        return $this;
+    }
+
+    /**
+     * @return RecentlyViewed
+     */
+    public function clearAll(): RecentlyViewed
+    {
+        session()->forget(config('recently-viewed.session_prefix'));
+
+        return $this;
+    }
 }

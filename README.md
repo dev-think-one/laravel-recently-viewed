@@ -23,7 +23,7 @@ For example:
 You can install the package via composer:
 
 ```bash
-composer require yaroslawww/recently-viewed
+composer require yaroslawww/laravel-recently-viewed
 ```
 
 You can publish the config file with:

@@ -12,6 +12,8 @@ use RecentlyViewed\Models\Contracts\Viewable;
  * @method static \RecentlyViewed\RecentlyViewed add(Viewable $viewable)
  * @method static mixed getQuery($viewable)
  * @method static \Illuminate\Support\Collection get($viewable)
+ * @method static \RecentlyViewed\RecentlyViewed clear($viewable)
+ * @method static \RecentlyViewed\RecentlyViewed clearAll()
  */
 class RecentlyViewed extends Facade
 {
