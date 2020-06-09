@@ -168,33 +168,37 @@ class RecentlyViewed
             $persist = $viewer->getRecentViews();
             $session = session()->get(config('recently-viewed.session_prefix'));
             $merged = [];
-            foreach ($session as $type => $keys) {
-                $obj = new $type();
-                if ($obj instanceof Viewable) {
-                    $limit = $obj->getRecentlyViewsLimit();
-                    if (count($keys) >= $limit) {
-                        $keys = array_slice($keys, 0, $limit);
-                    } else {
-                        if (isset($persist[$type])) {
-                            $keys = array_slice(array_merge($keys, $persist[$type]), 0, $limit);
+            if (is_array($session)) {
+                foreach ($session as $type => $keys) {
+                    $obj = new $type();
+                    if ($obj instanceof Viewable) {
+                        $limit = $obj->getRecentlyViewsLimit();
+                        if (count($keys) >= $limit) {
+                            $keys = array_slice($keys, 0, $limit);
+                        } else {
+                            if (isset($persist[$type])) {
+                                $keys = array_slice(array_merge($keys, $persist[$type]), 0, $limit);
+                            }
+                        }
+                        $keys = array_unique($keys);
+                        if (count($keys)) {
+                            $merged[$type] = array_unique($keys);
                         }
                     }
-                    $keys = array_unique($keys);
-                    if (count($keys)) {
-                        $merged[$type] = array_unique($keys);
+                    if (isset($persist[$type])) {
+                        unset($persist[$type]);
                     }
-                }
-                if (isset($persist[$type])) {
-                    unset($persist[$type]);
                 }
             }
 
-            foreach ($persist as $type => $keys) {
-                $obj = new $type();
-                if ($obj instanceof Viewable) {
-                    $limit = $obj->getRecentlyViewsLimit();
-                    if (count($keys)) {
-                        $merged[$type] = array_slice($keys, 0, $limit);
+            if (is_array($persist)) {
+                foreach ($persist as $type => $keys) {
+                    $obj = new $type();
+                    if ($obj instanceof Viewable) {
+                        $limit = $obj->getRecentlyViewsLimit();
+                        if (count($keys)) {
+                            $merged[$type] = array_slice($keys, 0, $limit);
+                        }
                     }
                 }
             }
