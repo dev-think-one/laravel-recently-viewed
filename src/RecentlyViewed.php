@@ -48,7 +48,8 @@ class RecentlyViewed
             throw new ShouldBeViewableException('Entity should implement Viewable interface');
         }
 
-        $keys = session()->get(config('recently-viewed.session_prefix') . '.' . get_class($viewable));
+        // return blank array when no session data exists
+        $keys = session()->get(config('recently-viewed.session_prefix') . '.' . get_class($viewable)) ?? [];
 
         return $viewable->whereRecentlyViewedIn($keys);
     }
