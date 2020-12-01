@@ -17,7 +17,7 @@ trait CanView
     public function getRecentViews(array $types = [])
     {
         if (empty($types)) {
-            return $this->recentViews()->get()->pluck('views', 'type')->map(fn($views) => json_decode($views, true));
+            return $this->recentViews()->get()->pluck('views', 'type')->map(fn ($views) => json_decode($views, true));
         }
 
         return $this->recentViews()->whereIn('type', $types)->get()->pluck('views', 'type');

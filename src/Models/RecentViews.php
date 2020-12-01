@@ -3,12 +3,10 @@
 
 namespace RecentlyViewed\Models;
 
-
 use Illuminate\Database\Eloquent\Model;
 
 class RecentViews extends Model
 {
-
     protected $guarded = [];
 
     public function __construct(array $attributes = [])
@@ -17,5 +15,4 @@ class RecentViews extends Model
 
         parent::__construct($attributes);
     }
-
 }

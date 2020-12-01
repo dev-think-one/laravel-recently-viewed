@@ -17,7 +17,7 @@ class RecentlyViewed
     public function add(Viewable $viewable)
     {
         $keys = session()->get(config('recently-viewed.session_prefix') . '.' . get_class($viewable));
-        if (!is_array($keys)) {
+        if (! is_array($keys)) {
             $keys = [];
         }
         array_unshift($keys, $viewable->getKey());
@@ -41,15 +41,14 @@ class RecentlyViewed
      */
     public function getQuery($viewable)
     {
-        if (!($viewable instanceof Viewable) && is_string($viewable)) {
+        if (! ($viewable instanceof Viewable) && is_string($viewable)) {
             $viewable = new $viewable();
         }
-        if (!($viewable instanceof Viewable)) {
+        if (! ($viewable instanceof Viewable)) {
             throw new ShouldBeViewableException('Entity should implement Viewable interface');
         }
 
-        // return blank array when no session data exists
-        $keys = session()->get(config('recently-viewed.session_prefix') . '.' . get_class($viewable)) ?? [];
+        $keys = session()->get(config('recently-viewed.session_prefix') . '.' . get_class($viewable), []);
 
         return $viewable->whereRecentlyViewedIn($keys);
     }
@@ -62,10 +61,10 @@ class RecentlyViewed
      */
     public function get($viewable, int $limit = null): \Illuminate\Support\Collection
     {
-        if (!($viewable instanceof Viewable) && is_string($viewable)) {
+        if (! ($viewable instanceof Viewable) && is_string($viewable)) {
             $viewable = new $viewable();
         }
-        if (!($viewable instanceof Viewable)) {
+        if (! ($viewable instanceof Viewable)) {
             throw new ShouldBeViewableException('Entity should implement Viewable interface');
         }
 
@@ -91,10 +90,10 @@ class RecentlyViewed
      */
     public function clear($viewable): RecentlyViewed
     {
-        if (!($viewable instanceof Viewable) && is_string($viewable)) {
+        if (! ($viewable instanceof Viewable) && is_string($viewable)) {
             $viewable = new $viewable();
         }
-        if (!($viewable instanceof Viewable)) {
+        if (! ($viewable instanceof Viewable)) {
             throw new ShouldBeViewableException('Entity should implement Viewable interface');
         }
 
