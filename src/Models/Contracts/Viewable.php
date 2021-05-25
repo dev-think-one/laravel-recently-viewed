@@ -5,12 +5,23 @@ namespace RecentlyViewed\Models\Contracts;
 interface Viewable
 {
     /**
-     * @param  mixed  $values
+     * @param array $values
+     *
      * @return mixed
      */
-    public function whereRecentlyViewedIn($values);
+    public function whereRecentlyViewedIn(array $values);
 
-    public function getKey();
+    /**
+     * Get the primary key for the model.
+     *
+     * @return string
+     */
+    public function getKeyName();
 
-    public function getRecentlyViewsLimit(): int ;
+    /**
+     * Get recently vuewed items count.
+     *
+     * @return int
+     */
+    public function getRecentlyViewsLimit(): int;
 }

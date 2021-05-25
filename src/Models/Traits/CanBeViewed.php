@@ -11,12 +11,16 @@ trait CanBeViewed
 {
 
     /**
-     * @param  mixed  $values
+     * @param array $values
+     *
      * @return mixed
      */
-    public function whereRecentlyViewedIn($values)
+    public function whereRecentlyViewedIn(array $values)
     {
-        return  static::whereIn($this->getKeyName(), $values);
+        $values_ordered = implode(',', $values);
+
+        return static::whereIn($this->getKeyName(), $values)
+                     ->orderByRaw("FIELD({$this->getKeyName()}, {$values_ordered})");
     }
 
     public function getRecentlyViewsLimit(): int
