@@ -1,4 +1,5 @@
 # Laravel: Recently Viewed
+
 Add functionality to save/get in session recently viewed entities
 
 You can track any number of entities. Each list will be saved separately.
@@ -6,6 +7,7 @@ You can track any number of entities. Each list will be saved separately.
 ## Session storage (without persist)
 
 For example:
+
 ```
 "recently_viewed" => array:2 [
                       "App\Models\Product" => array:2 [
@@ -19,7 +21,7 @@ For example:
                       ]
                     ]
 ```
- 
+
 ## Installation
 
 You can install the package via composer:
@@ -29,11 +31,13 @@ composer require yaroslawww/laravel-recently-viewed
 ```
 
 You can publish the config file with:
+
 ```bash
 php artisan vendor:publish --provider="RecentlyViewed\ServiceProvider" --tag="config"
 ```
 
 Configuration in *.env*
+
 ```dotenv
 # Optional
 # RECENTLY_VIEWED_SESSION_PREFIX=recently_viewed
@@ -62,7 +66,6 @@ class Property implements Viewable
 }
 ```
 
-
 ```php
 <?php
 class ProductController extends Controller
@@ -86,9 +89,11 @@ class ProductsViewComposer
             'recentlyViewedProducts' => \RecentlyViewed\Facades\RecentlyViewed::get(Product::class),
             // or
             'recentlyViewedProductsWithoutLast' => \RecentlyViewed\Facades\RecentlyViewed::get(Product::class)->slice(1),
-            // or
-            'recentlyViewedProductsFiltered' => \RecentlyViewed\Facades\RecentlyViewed::getQuery(Product::class)
-            ->where('not_display_in_recently_list', false)->get(),
+        ]);
+        // or
+        $query = \RecentlyViewed\Facades\RecentlyViewed::getQuery(Product::class);
+        $view->with([
+            'recentlyViewedProductsFiltered' => $query?$query->where('not_display_in_recently_list', false)->get():collect([]),
         ]);
     }
 }
@@ -104,6 +109,7 @@ php artisan migrate
 ```
 
 Configuration in *.env*
+
 ```dotenv
 RECENTLY_VIEWED_PERSIST_ENABLED=true
 ```
@@ -121,6 +127,7 @@ class User extends Authenticatable implements Viewer
 ```
 
 Add "merge" method after login (if you want merge saved data before login and already stored data)
+
 ```php
 class LoginController extends Controller
 {

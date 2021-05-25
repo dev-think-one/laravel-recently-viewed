@@ -36,10 +36,11 @@ class RecentlyViewed
 
     /**
      * @param Viewable|string $viewable
-     * @return mixed
+     *
+     * @return \Illuminate\Database\Eloquent\Builder|null
      * @throws ShouldBeViewableException
      */
-    public function getQuery($viewable)
+    public function getQuery($viewable): ?\Illuminate\Database\Eloquent\Builder
     {
         if (! ($viewable instanceof Viewable) && is_string($viewable)) {
             $viewable = new $viewable();

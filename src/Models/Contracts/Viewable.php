@@ -2,14 +2,16 @@
 
 namespace RecentlyViewed\Models\Contracts;
 
+use Illuminate\Database\Eloquent\Builder;
+
 interface Viewable
 {
     /**
      * @param array $values
      *
-     * @return mixed
+     * @return null|Builder
      */
-    public function whereRecentlyViewedIn(array $values);
+    public function whereRecentlyViewedIn(array $values): ?Builder;
 
     /**
      * Get the primary key for the model.
@@ -19,7 +21,7 @@ interface Viewable
     public function getKeyName();
 
     /**
-     * Get recently vuewed items count.
+     * Get recently viewed items count.
      *
      * @return int
      */

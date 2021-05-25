@@ -10,7 +10,7 @@ use RecentlyViewed\Models\Contracts\Viewable;
  * @package RecentlyViewed\Facades
  *
  * @method static \RecentlyViewed\RecentlyViewed add(Viewable $viewable)
- * @method static mixed getQuery($viewable)
+ * @method static \Illuminate\Database\Eloquent\Builder|null getQuery($viewable)
  * @method static \Illuminate\Support\Collection get($viewable)
  * @method static \RecentlyViewed\RecentlyViewed clear($viewable)
  * @method static \RecentlyViewed\RecentlyViewed clearAll()
