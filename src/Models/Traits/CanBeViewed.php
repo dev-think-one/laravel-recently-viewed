@@ -17,6 +17,8 @@ trait CanBeViewed
      */
     public function whereRecentlyViewedIn(array $values)
     {
+        $values = array_filter($values, fn ($v) => (is_int($v) || is_string($v)));
+
         $values_ordered = implode(',', $values);
 
         return static::whereIn($this->getKeyName(), $values)

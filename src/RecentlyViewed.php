@@ -50,6 +50,10 @@ class RecentlyViewed
 
         $keys = session()->get(config('recently-viewed.session_prefix') . '.' . get_class($viewable), []);
 
+        if (! is_array($keys)) {
+            $keys = [];
+        }
+
         return $viewable->whereRecentlyViewedIn($keys);
     }
 

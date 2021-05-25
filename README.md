@@ -85,6 +85,8 @@ class ProductsViewComposer
         $view->with([
             'recentlyViewedProducts' => \RecentlyViewed\Facades\RecentlyViewed::get(Product::class),
             // or
+            'recentlyViewedProductsWithoutLast' => \RecentlyViewed\Facades\RecentlyViewed::get(Product::class)->slice(1),
+            // or
             'recentlyViewedProductsFiltered' => \RecentlyViewed\Facades\RecentlyViewed::getQuery(Product::class)
             ->where('not_display_in_recently_list', false)->get(),
         ]);
