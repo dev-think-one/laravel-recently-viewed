@@ -11,6 +11,6 @@ return [
      * Persist functionality
      */
     'persist_enabled' => (bool) env('RECENTLY_VIEWED_PERSIST_ENABLED', false),
-    'persist_table' => 'recent_views',
-    'persist_model' => \RecentlyViewed\Models\RecentViews::class,
+    'persist_table'   => 'recent_views',
+    'persist_model'   => \RecentlyViewed\Models\RecentViews::class,
 ];

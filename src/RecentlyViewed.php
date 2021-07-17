@@ -2,7 +2,6 @@
 
 namespace RecentlyViewed;
 
-use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Auth;
 use RecentlyViewed\Exceptions\ShouldBeViewableException;
 use RecentlyViewed\Models\Contracts\Viewable;
@@ -12,23 +11,26 @@ class RecentlyViewed
 {
     /**
      * @param Viewable $viewable
+     *
      * @return $this
      */
     public function add(Viewable $viewable)
     {
-        $keys = session()->get(config('recently-viewed.session_prefix') . '.' . get_class($viewable));
-        if (! is_array($keys)) {
-            $keys = [];
-        }
-        array_unshift($keys, $viewable->getKey());
-        $keys = array_slice(array_unique($keys), 0, $viewable->getRecentlyViewsLimit());
-        session()->put(
-            config('recently-viewed.session_prefix') . '.' . get_class($viewable),
-            $keys
-        );
+        if (method_exists($viewable, 'getKey')) {
+            $keys = session()->get(config('recently-viewed.session_prefix') . '.' . get_class($viewable));
+            if (!is_array($keys)) {
+                $keys = [];
+            }
+            array_unshift($keys, $viewable->getKey());
+            $keys = array_slice(array_unique($keys), 0, $viewable->getRecentlyViewsLimit());
+            session()->put(
+                config('recently-viewed.session_prefix') . '.' . get_class($viewable),
+                $keys
+            );
 
-        if (config('recently-viewed.persist_enabled')) {
-            $this->persist($viewable, $keys);
+            if (config('recently-viewed.persist_enabled')) {
+                $this->persist($viewable, $keys);
+            }
         }
 
         return $this;
@@ -42,16 +44,16 @@ class RecentlyViewed
      */
     public function getQuery($viewable): ?\Illuminate\Database\Eloquent\Builder
     {
-        if (! ($viewable instanceof Viewable) && is_string($viewable)) {
+        if (!($viewable instanceof Viewable) && is_string($viewable)) {
             $viewable = new $viewable();
         }
-        if (! ($viewable instanceof Viewable)) {
+        if (!($viewable instanceof Viewable)) {
             throw new ShouldBeViewableException('Entity should implement Viewable interface');
         }
 
         $keys = session()->get(config('recently-viewed.session_prefix') . '.' . get_class($viewable), []);
 
-        if (! is_array($keys)) {
+        if (!is_array($keys)) {
             $keys = [];
         }
 
@@ -61,26 +63,26 @@ class RecentlyViewed
     /**
      * @param Viewable|string $viewable
      * @param int|null $limit
+     *
      * @return \Illuminate\Support\Collection
      * @throws ShouldBeViewableException
      */
     public function get($viewable, int $limit = null): \Illuminate\Support\Collection
     {
-        if (! ($viewable instanceof Viewable) && is_string($viewable)) {
+        if (!($viewable instanceof Viewable) && is_string($viewable)) {
             $viewable = new $viewable();
         }
-        if (! ($viewable instanceof Viewable)) {
+        if (!($viewable instanceof Viewable)) {
             throw new ShouldBeViewableException('Entity should implement Viewable interface');
         }
 
         $query = $this->getQuery($viewable);
-        if (($query instanceof Builder) || ($query instanceof \Illuminate\Database\Eloquent\Builder)) {
+
+        if ($query) {
             /** * @psalm-suppress InvalidReturnStatement */
             return $query->take($limit ?? $viewable->getRecentlyViewsLimit())->get();
         }
-        if ($query instanceof \Illuminate\Support\Collection) {
-            return $query;
-        }
+
         if (method_exists($viewable, 'makeQuery')) {
             return $viewable->makeQuery($query);
         }
@@ -90,15 +92,16 @@ class RecentlyViewed
 
     /**
      * @param Viewable|string $viewable
+     *
      * @return RecentlyViewed
      * @throws ShouldBeViewableException
      */
     public function clear($viewable): RecentlyViewed
     {
-        if (! ($viewable instanceof Viewable) && is_string($viewable)) {
+        if (!($viewable instanceof Viewable) && is_string($viewable)) {
             $viewable = new $viewable();
         }
-        if (! ($viewable instanceof Viewable)) {
+        if (!($viewable instanceof Viewable)) {
             throw new ShouldBeViewableException('Entity should implement Viewable interface');
         }
 
@@ -128,6 +131,7 @@ class RecentlyViewed
     /**
      * @param Viewable $viewable
      * @param array $data
+     *
      * @return RecentlyViewed
      */
     public function persist(Viewable $viewable, array $data): RecentlyViewed
@@ -141,12 +145,13 @@ class RecentlyViewed
 
     /**
      * @param Viewable $viewable
+     *
      * @return RecentlyViewed
      */
     public function clearPersist(Viewable $viewable): RecentlyViewed
     {
         if ($viewer = $this->getViewer()) {
-            $viewer->deleteRecentViews([get_class($viewable)]);
+            $viewer->deleteRecentViews([ get_class($viewable) ]);
         }
 
         return $this;
@@ -172,37 +177,43 @@ class RecentlyViewed
         if ($viewer = $this->getViewer()) {
             $persist = $viewer->getRecentViews();
             $session = session()->get(config('recently-viewed.session_prefix'));
-            $merged = [];
+            $merged  = [];
             if (is_array($session)) {
                 foreach ($session as $type => $keys) {
+                    if (!class_exists($type)) {
+                        continue;
+                    }
                     $obj = new $type();
                     if ($obj instanceof Viewable) {
                         $limit = $obj->getRecentlyViewsLimit();
                         if (count($keys) >= $limit) {
                             $keys = array_slice($keys, 0, $limit);
                         } else {
-                            if (isset($persist[$type])) {
-                                $keys = array_slice(array_merge($keys, $persist[$type]), 0, $limit);
+                            if (isset($persist[ $type ])) {
+                                $keys = array_slice(array_merge($keys, $persist[ $type ]), 0, $limit);
                             }
                         }
                         $keys = array_unique($keys);
                         if (count($keys)) {
-                            $merged[$type] = array_unique($keys);
+                            $merged[ $type ] = array_unique($keys);
                         }
                     }
-                    if (isset($persist[$type])) {
-                        unset($persist[$type]);
+                    if (isset($persist[ $type ])) {
+                        unset($persist[ $type ]);
                     }
                 }
             }
 
             if (is_array($persist)) {
                 foreach ($persist as $type => $keys) {
+                    if (!class_exists($type)) {
+                        continue;
+                    }
                     $obj = new $type();
                     if ($obj instanceof Viewable) {
                         $limit = $obj->getRecentlyViewsLimit();
                         if (count($keys)) {
-                            $merged[$type] = array_slice($keys, 0, $limit);
+                            $merged[ $type ] = array_slice($keys, 0, $limit);
                         }
                     }
                 }
