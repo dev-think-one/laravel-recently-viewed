@@ -23,9 +23,21 @@ trait CanBeViewed
 
         if (count($values)) {
             $values_ordered = implode(',', $values);
+            $query = static::whereIn($this->getKeyName(), $values);
 
-            return static::whereIn($this->getKeyName(), $values)
-                         ->orderByRaw("FIELD({$this->getKeyName()}, {$values_ordered})");
+            if(config('database.default') == 'pgsql'){
+                $cases = "CASE";
+
+                foreach($values as $index => $value){
+                    $cases = $cases." WHEN {$this->getKeyName()} = {$value} THEN {$index}";
+                }
+
+                $cases = $cases." ELSE 0 END";
+
+                return $query->orderByRaw($cases);
+            }else{
+                return $query->orderByRaw("FIELD({$this->getKeyName()}, {$values_ordered})");
+            }
         }
 
         return null;
