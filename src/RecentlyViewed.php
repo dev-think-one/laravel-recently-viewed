@@ -175,7 +175,7 @@ class RecentlyViewed
     public function mergePersistToCurrentSession(): RecentlyViewed
     {
         if ($viewer = $this->getViewer()) {
-            $persist = $viewer->getRecentViews();
+            $persist = $viewer->getRecentViews()->toArray();
             $session = session()->get(config('recently-viewed.session_prefix'));
             $merged  = [];
             if (is_array($session)) {
