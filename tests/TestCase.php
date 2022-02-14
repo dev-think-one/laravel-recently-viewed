@@ -2,24 +2,46 @@
 
 namespace RecentlyViewed\Tests;
 
+use Orchestra\Testbench\Database\MigrateProcessor;
 use Orchestra\Testbench\TestCase as Orchestra;
-use RecentlyViewed\ServiceProvider;
 
 class TestCase extends Orchestra
 {
-    public function setUp(): void
-    {
-        parent::setUp();
-    }
-
     protected function getPackageProviders($app)
     {
         return [
-            ServiceProvider::class,
+            \RecentlyViewed\ServiceProvider::class,
         ];
     }
 
-    public function getEnvironmentSetUp($app)
+    protected function defineDatabaseMigrations()
     {
+        $this->loadLaravelMigrations();
+
+        $migrator = new MigrateProcessor($this, [
+            '--path'     => __DIR__.'/Fixtures/migrations',
+            '--realpath' => true,
+        ]);
+        $migrator->up();
+    }
+
+    /**
+     * Define environment setup.
+     *
+     * @param  \Illuminate\Foundation\Application  $app
+     *
+     * @return void
+     */
+    protected function getEnvironmentSetUp($app)
+    {
+        // Setup default database to use sqlite :memory:
+        $app['config']->set('database.default', 'testbench');
+        $app['config']->set('database.connections.testbench', [
+            'driver'   => 'sqlite',
+            'database' => ':memory:',
+            'prefix'   => '',
+        ]);
+
+        // $app['config']->set('recently-viewed.some_key', 'some_value');
     }
 }

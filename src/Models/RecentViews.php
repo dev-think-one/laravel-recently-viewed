@@ -9,10 +9,8 @@ class RecentViews extends Model
 {
     protected $guarded = [];
 
-    public function __construct(array $attributes = [])
+    public function getTable()
     {
-        $this->table = \config('recently-viewed.persist_table');
-
-        parent::__construct($attributes);
+        return config('recently-viewed.persist_table');
     }
 }
