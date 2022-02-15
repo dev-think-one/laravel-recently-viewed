@@ -19,6 +19,15 @@ class PersistManager
     public static string $model = \RecentlyViewed\Models\RecentViews::class;
 
     /**
+     * Check is persistent storage enabled.
+     *
+     * @return bool
+     */
+    public static function isEnabled(): bool
+    {
+        return (bool) config('recently-viewed.persist_enabled');
+    }
+    /**
      * Configure laravel to not register current package migrations.
      *
      * @return static

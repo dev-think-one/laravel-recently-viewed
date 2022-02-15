@@ -13,7 +13,7 @@ trait CanBeViewed
 {
 
     /**
-     * @param array $values
+     * @param  array  $values
      *
      * @return null|Builder
      */
@@ -38,6 +38,6 @@ trait CanBeViewed
      */
     public function getRecentlyViewsLimit(): int
     {
-        return 10;
+        return (int) (property_exists($this, 'recentlyViewsLimit') ? $this->recentlyViewsLimit : 10);
     }
 }

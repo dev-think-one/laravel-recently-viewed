@@ -2,6 +2,8 @@
 
 namespace RecentlyViewed;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use RecentlyViewed\Exceptions\ShouldBeViewableException;
 use RecentlyViewed\Models\Contracts\Viewable;
@@ -9,26 +11,28 @@ use RecentlyViewed\Models\Contracts\Viewer;
 
 class RecentlyViewed
 {
-    /**
-     * @param Viewable $viewable
-     *
-     * @return $this
-     */
-    public function add(Viewable $viewable)
+    protected string $sessionPrefix;
+
+    public function __construct()
+    {
+        $this->sessionPrefix = config('recently-viewed.session_prefix');
+    }
+
+    public function add(Viewable $viewable): static
     {
         if (method_exists($viewable, 'getKey')) {
-            $keys = session()->get(config('recently-viewed.session_prefix') . '.' . get_class($viewable));
+            $keys = session()->get("{$this->sessionPrefix}." . get_class($viewable));
             if (!is_array($keys)) {
                 $keys = [];
             }
             array_unshift($keys, $viewable->getKey());
             $keys = array_slice(array_unique($keys), 0, $viewable->getRecentlyViewsLimit());
             session()->put(
-                config('recently-viewed.session_prefix') . '.' . get_class($viewable),
+                "{$this->sessionPrefix}.".get_class($viewable),
                 $keys
             );
 
-            if (config('recently-viewed.persist_enabled')) {
+            if (PersistManager::isEnabled()) {
                 $this->persist($viewable, $keys);
             }
         }
@@ -37,12 +41,11 @@ class RecentlyViewed
     }
 
     /**
-     * @param Viewable|string $viewable
-     *
-     * @return \Illuminate\Database\Eloquent\Builder|null
-     * @throws ShouldBeViewableException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws \RecentlyViewed\Exceptions\ShouldBeViewableException
      */
-    public function getQuery($viewable): ?\Illuminate\Database\Eloquent\Builder
+    public function getQuery(Viewable|string $viewable): ?Builder
     {
         if (!($viewable instanceof Viewable) && is_string($viewable)) {
             $viewable = new $viewable();
@@ -51,7 +54,7 @@ class RecentlyViewed
             throw new ShouldBeViewableException('Entity should implement Viewable interface');
         }
 
-        $keys = session()->get(config('recently-viewed.session_prefix') . '.' . get_class($viewable), []);
+        $keys = session()->get("{$this->sessionPrefix}.".get_class($viewable), []);
 
         if (!is_array($keys)) {
             $keys = [];
@@ -61,15 +64,11 @@ class RecentlyViewed
     }
 
     /**
-     * @param Viewable|string $viewable
-     * @param int|null $limit
-     *
-     * @return \Illuminate\Support\Collection
      * @throws ShouldBeViewableException
      */
-    public function get($viewable, int $limit = null): \Illuminate\Support\Collection
+    public function get(Viewable|string $viewable, ?int $limit = null): Collection
     {
-        if (!($viewable instanceof Viewable) && is_string($viewable)) {
+        if (!($viewable instanceof Viewable)) {
             $viewable = new $viewable();
         }
         if (!($viewable instanceof Viewable)) {
@@ -91,50 +90,38 @@ class RecentlyViewed
     }
 
     /**
-     * @param Viewable|string $viewable
-     *
-     * @return RecentlyViewed
      * @throws ShouldBeViewableException
      */
-    public function clear($viewable): RecentlyViewed
+    public function clear(Viewable|string $viewable): static
     {
-        if (!($viewable instanceof Viewable) && is_string($viewable)) {
+        if (!($viewable instanceof Viewable)) {
             $viewable = new $viewable();
         }
         if (!($viewable instanceof Viewable)) {
             throw new ShouldBeViewableException('Entity should implement Viewable interface');
         }
 
-        session()->forget(config('recently-viewed.session_prefix') . '.' . get_class($viewable));
+        session()->forget("{$this->sessionPrefix}.".get_class($viewable));
 
-        if (config('recently-viewed.persist_enabled')) {
+        if (PersistManager::isEnabled()) {
             $this->clearPersist($viewable);
         }
 
         return $this;
     }
 
-    /**
-     * @return RecentlyViewed
-     */
-    public function clearAll(): RecentlyViewed
+    public function clearAll(): static
     {
         session()->forget(config('recently-viewed.session_prefix'));
 
-        if (config('recently-viewed.persist_enabled')) {
+        if (PersistManager::isEnabled()) {
             $this->clearPersistAll();
         }
 
         return $this;
     }
 
-    /**
-     * @param Viewable $viewable
-     * @param array $data
-     *
-     * @return RecentlyViewed
-     */
-    public function persist(Viewable $viewable, array $data): RecentlyViewed
+    public function persist(Viewable $viewable, array $data): static
     {
         if ($viewer = $this->getViewer()) {
             $viewer->syncRecentViews(get_class($viewable), $data);
@@ -143,40 +130,27 @@ class RecentlyViewed
         return $this;
     }
 
-    /**
-     * @param Viewable $viewable
-     *
-     * @return RecentlyViewed
-     */
-    public function clearPersist(Viewable $viewable): RecentlyViewed
+    public function clearPersist(Viewable $viewable): static
     {
         if ($viewer = $this->getViewer()) {
-            $viewer->deleteRecentViews([ get_class($viewable) ]);
+            $viewer->deleteRecentViews([get_class($viewable)]);
         }
 
         return $this;
     }
 
-    /**
-     * @return RecentlyViewed
-     */
-    public function clearPersistAll(): RecentlyViewed
+    public function clearPersistAll(): static
     {
-        if ($viewer = $this->getViewer()) {
-            $viewer->deleteRecentViews();
-        }
+        $this->getViewer()?->deleteRecentViews();
 
         return $this;
     }
 
-    /**
-     * @return RecentlyViewed
-     */
-    public function mergePersistToCurrentSession(): RecentlyViewed
+    public function mergePersistToCurrentSession(): static
     {
         if ($viewer = $this->getViewer()) {
             $persist = $viewer->getRecentViews()->toArray();
-            $session = session()->get(config('recently-viewed.session_prefix'));
+            $session = session()->get($this->sessionPrefix);
             $merged  = [];
             if (is_array($session)) {
                 foreach ($session as $type => $keys) {
@@ -189,17 +163,17 @@ class RecentlyViewed
                         if (count($keys) >= $limit) {
                             $keys = array_slice($keys, 0, $limit);
                         } else {
-                            if (isset($persist[ $type ])) {
-                                $keys = array_slice(array_merge($keys, $persist[ $type ]), 0, $limit);
+                            if (isset($persist[$type])) {
+                                $keys = array_slice(array_merge($keys, $persist[$type]), 0, $limit);
                             }
                         }
                         $keys = array_unique($keys);
                         if (count($keys)) {
-                            $merged[ $type ] = array_unique($keys);
+                            $merged[$type] = array_unique($keys);
                         }
                     }
-                    if (isset($persist[ $type ])) {
-                        unset($persist[ $type ]);
+                    if (isset($persist[$type])) {
+                        unset($persist[$type]);
                     }
                 }
             }
@@ -213,15 +187,12 @@ class RecentlyViewed
                     if ($obj instanceof Viewable) {
                         $limit = $obj->getRecentlyViewsLimit();
                         if (count($keys)) {
-                            $merged[ $type ] = array_slice($keys, 0, $limit);
+                            $merged[$type] = array_slice($keys, 0, $limit);
                         }
                     }
                 }
             }
-            session()->put(
-                config('recently-viewed.session_prefix'),
-                $merged
-            );
+            session()->put($this->sessionPrefix, $merged);
             $viewer->deleteRecentViews();
             foreach ($merged as $type => $keys) {
                 $viewer->syncRecentViews($type, $keys);
@@ -233,11 +204,9 @@ class RecentlyViewed
 
     protected function getViewer(): ?Viewer
     {
-        if (Auth::check()) {
-            $user = Auth::user();
-            if ($user instanceof Viewer) {
-                return $user;
-            }
+        if (($user = Auth::user())
+            && $user instanceof Viewer) {
+            return $user;
         }
 
         return null;
