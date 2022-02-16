@@ -3,9 +3,9 @@
 namespace RecentlyViewed\Tests\Fixtures\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Orchestra\Testbench\Factories\UserFactory;
 use RecentlyViewed\Models\Contracts\Viewer;
 use RecentlyViewed\Models\Traits\CanView;
+use RecentlyViewed\Tests\Fixtures\Factories\UserFactory;
 
 class User extends \Illuminate\Foundation\Auth\User implements Viewer
 {

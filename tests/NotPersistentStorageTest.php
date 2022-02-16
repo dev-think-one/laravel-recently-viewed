@@ -3,17 +3,27 @@
 namespace RecentlyViewed\Tests;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use RecentlyViewed\Facades\RecentlyViewed;
+use RecentlyViewed\Tests\Fixtures\Models\Post;
+use RecentlyViewed\Tests\Fixtures\Models\Product;
 
 class NotPersistentStorageTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected string $sessionPrefix;
-
     protected function setUp(): void
     {
         parent::setUp();
-        $this->sessionPrefix = config('recently-viewed.session_prefix');
+
+        Post::factory()->count(rand(10, 100))->create();
+        Product::factory()->count(rand(10, 100))->create();
+    }
+
+    protected function getSessionByKey(string $key)
+    {
+        $sessionPrefix = config('recently-viewed.session_prefix');
+
+        return $this->app['session']->get("{$sessionPrefix}.".$key);
     }
 
     /** @test */
@@ -21,44 +31,40 @@ class NotPersistentStorageTest extends TestCase
     {
         $this->flushSession();
 
-        $post = \RecentlyViewed\Tests\Fixtures\Models\Post::fake();
-        $post->save();
-        $post1 = \RecentlyViewed\Tests\Fixtures\Models\Post::fake();
-        $post1->save();
-        $product = \RecentlyViewed\Tests\Fixtures\Models\Product::fake();
-        $product->save();
-        $product1 = \RecentlyViewed\Tests\Fixtures\Models\Product::fake();
-        $product1->save();
+        $post     = Post::factory()->create();
+        $post1    = Post::factory()->create();
+        $product  = Product::factory()->create();
+        $product1 = Product::factory()->create();
 
-        $this->assertEmpty($this->app['session']->get("{$this->sessionPrefix}.".$post1::class));
+        $this->assertEmpty($this->getSessionByKey($post1::class));
 
-        \RecentlyViewed\Facades\RecentlyViewed::add($post1);
-        $this->assertIsArray($this->app['session']->get("{$this->sessionPrefix}.".$post1::class));
-        $this->assertCount(1, $this->app['session']->get("{$this->sessionPrefix}.".$post1::class));
-        $this->assertEquals($post1->getKey(), $this->app['session']->get("{$this->sessionPrefix}.".$post1::class . '.0'));
+        RecentlyViewed::add($post1);
+        $this->assertIsArray($this->getSessionByKey($post1::class));
+        $this->assertCount(1, $this->getSessionByKey($post1::class));
+        $this->assertEquals($post1->getKey(), $this->getSessionByKey($post1::class.'.0'));
 
-        \RecentlyViewed\Facades\RecentlyViewed::add($product);
-        $this->assertCount(1, $this->app['session']->get("{$this->sessionPrefix}.".$post::class));
-        $this->assertEquals($post1->getKey(), $this->app['session']->get("{$this->sessionPrefix}.".$post::class . '.0'));
-        $this->assertIsArray($this->app['session']->get("{$this->sessionPrefix}.".$product::class));
-        $this->assertCount(1, $this->app['session']->get("{$this->sessionPrefix}.".$product::class));
-        $this->assertEquals($product->getKey(), $this->app['session']->get("{$this->sessionPrefix}.".$product::class . '.0'));
+        RecentlyViewed::add($product);
+        $this->assertCount(1, $this->getSessionByKey($post1::class));
+        $this->assertEquals($post1->getKey(), $this->getSessionByKey($post1::class.'.0'));
+        $this->assertIsArray($this->getSessionByKey($product::class));
+        $this->assertCount(1, $this->getSessionByKey($product::class));
+        $this->assertEquals($product->getKey(), $this->getSessionByKey($product::class.'.0'));
 
-        \RecentlyViewed\Facades\RecentlyViewed::add($post);
-        $this->assertCount(2, $this->app['session']->get("{$this->sessionPrefix}.".$post::class));
-        $this->assertEquals($post->getKey(), $this->app['session']->get("{$this->sessionPrefix}.".$post::class . '.0'));
-        $this->assertEquals($post1->getKey(), $this->app['session']->get("{$this->sessionPrefix}.".$post::class . '.1'));
-        $this->assertIsArray($this->app['session']->get("{$this->sessionPrefix}.".$product::class));
-        $this->assertCount(1, $this->app['session']->get("{$this->sessionPrefix}.".$product::class));
-        $this->assertEquals($product->getKey(), $this->app['session']->get("{$this->sessionPrefix}.".$product::class . '.0'));
+        RecentlyViewed::add($post);
+        $this->assertCount(2, $this->getSessionByKey($post::class));
+        $this->assertEquals($post->getKey(), $this->getSessionByKey($post::class.'.0'));
+        $this->assertEquals($post1->getKey(),  $this->getSessionByKey($post::class.'.1'));
+        $this->assertIsArray($this->getSessionByKey($product::class));
+        $this->assertCount(1,  $this->getSessionByKey($product::class));
+        $this->assertEquals($product->getKey(),  $this->getSessionByKey($product::class.'.0'));
 
-        \RecentlyViewed\Facades\RecentlyViewed::add($product1);
-        $this->assertCount(2, $this->app['session']->get("{$this->sessionPrefix}.".$post::class));
-        $this->assertEquals($post->getKey(), $this->app['session']->get("{$this->sessionPrefix}.".$post::class . '.0'));
-        $this->assertEquals($post1->getKey(), $this->app['session']->get("{$this->sessionPrefix}.".$post::class . '.1'));
-        $this->assertCount(2, $this->app['session']->get("{$this->sessionPrefix}.".$product::class));
-        $this->assertEquals($product1->getKey(), $this->app['session']->get("{$this->sessionPrefix}.".$product::class . '.0'));
-        $this->assertEquals($product->getKey(), $this->app['session']->get("{$this->sessionPrefix}.".$product::class . '.1'));
+        RecentlyViewed::add($product1);
+        $this->assertCount(2, $this->getSessionByKey($post::class));
+        $this->assertEquals($post->getKey(), $this->getSessionByKey($post::class.'.0'));
+        $this->assertEquals($post1->getKey(),  $this->getSessionByKey($post::class.'.1'));
+        $this->assertCount(2,  $this->getSessionByKey($product::class));
+        $this->assertEquals($product1->getKey(),  $this->getSessionByKey($product::class.'.0'));
+        $this->assertEquals($product->getKey(),  $this->getSessionByKey($product::class.'.1'));
     }
 
     /** @test */
@@ -66,29 +72,25 @@ class NotPersistentStorageTest extends TestCase
     {
         $this->flushSession();
 
-        $post = \RecentlyViewed\Tests\Fixtures\Models\Post::fake();
-        $post->save();
-        $post1 = \RecentlyViewed\Tests\Fixtures\Models\Post::fake();
-        $post1->save();
-        $product = \RecentlyViewed\Tests\Fixtures\Models\Product::fake();
-        $product->save();
-        $product1 = \RecentlyViewed\Tests\Fixtures\Models\Product::fake();
-        $product1->save();
+        $post     = Post::factory()->create();
+        $post1    = Post::factory()->create();
+        $product  = Product::factory()->create();
+        $product1 = Product::factory()->create();
 
-        \RecentlyViewed\Facades\RecentlyViewed::add($post);
-        \RecentlyViewed\Facades\RecentlyViewed::add($post1);
-        \RecentlyViewed\Facades\RecentlyViewed::add($product);
-        \RecentlyViewed\Facades\RecentlyViewed::add($product1);
-        $this->assertCount(2, $this->app['session']->get("{$this->sessionPrefix}.".$post::class));
-        $this->assertCount(2, $this->app['session']->get("{$this->sessionPrefix}.".$product::class));
+        RecentlyViewed::add($post);
+        RecentlyViewed::add($post1);
+        RecentlyViewed::add($product);
+        RecentlyViewed::add($product1);
+        $this->assertCount(2, $this->getSessionByKey($post::class));
+        $this->assertCount(2, $this->getSessionByKey($product::class));
 
-        \RecentlyViewed\Facades\RecentlyViewed::clear($product);
-        $this->assertCount(2, $this->app['session']->get("{$this->sessionPrefix}.".$post::class));
-        $this->assertNull($this->app['session']->get("{$this->sessionPrefix}.".$product::class));
+        RecentlyViewed::clear($product);
+        $this->assertCount(2, $this->getSessionByKey($post::class));
+        $this->assertNull($this->getSessionByKey($product::class));
 
-        \RecentlyViewed\Facades\RecentlyViewed::clear($post);
-        $this->assertNull($this->app['session']->get("{$this->sessionPrefix}.".$post::class));
-        $this->assertNull($this->app['session']->get("{$this->sessionPrefix}.".$product::class));
+        RecentlyViewed::clear($post);
+        $this->assertNull($this->getSessionByKey($post::class));
+        $this->assertNull($this->getSessionByKey($product::class));
     }
 
     /** @test */
@@ -96,18 +98,18 @@ class NotPersistentStorageTest extends TestCase
     {
         $this->flushSession();
 
-        $post = \RecentlyViewed\Tests\Fixtures\Models\Post::fake();
-        $post->save();
-        $post1 = \RecentlyViewed\Tests\Fixtures\Models\Post::fake();
-        $post1->save();
-        $product = \RecentlyViewed\Tests\Fixtures\Models\Product::fake();
-        $product->save();
-        $product1 = \RecentlyViewed\Tests\Fixtures\Models\Product::fake();
-        $product1->save();
+        $post     = Post::factory()->create();
+        $post1    = Post::factory()->create();
+        $product  = Product::factory()->create();
+        $product1 = Product::factory()->create();
 
+        RecentlyViewed::add($post);
+        RecentlyViewed::add($post1);
+        RecentlyViewed::add($product);
+        RecentlyViewed::add($product1);
 
-        \RecentlyViewed\Facades\RecentlyViewed::clearAll();
-        $this->assertNull($this->app['session']->get("{$this->sessionPrefix}.".$post::class));
-        $this->assertNull($this->app['session']->get("{$this->sessionPrefix}.".$product::class));
+        RecentlyViewed::clearAll();
+        $this->assertNull($this->getSessionByKey($post::class));
+        $this->assertNull($this->getSessionByKey($product::class));
     }
 }
