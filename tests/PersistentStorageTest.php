@@ -30,13 +30,6 @@ class PersistentStorageTest extends TestCase
         Product::factory()->count(rand(10, 100))->create();
     }
 
-    protected function getSessionByKey(string $key)
-    {
-        $sessionPrefix = config('recently-viewed.session_prefix');
-
-        return $this->app['session']->get("{$sessionPrefix}.".$key);
-    }
-
     /** @test */
     public function add_to_recently_viewed()
     {

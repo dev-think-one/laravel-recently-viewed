@@ -44,4 +44,11 @@ class TestCase extends Orchestra
 
         // $app['config']->set('recently-viewed.some_key', 'some_value');
     }
+
+    protected function getSessionByKey(string $key)
+    {
+        $sessionPrefix = config('recently-viewed.session_prefix');
+
+        return $this->app['session']->get("{$sessionPrefix}.".$key);
+    }
 }
