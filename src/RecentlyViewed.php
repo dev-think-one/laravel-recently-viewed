@@ -2,7 +2,6 @@
 
 namespace RecentlyViewed;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use RecentlyViewed\Exceptions\ShouldBeViewableException;
@@ -21,7 +20,7 @@ class RecentlyViewed
     public function add(Viewable $viewable): static
     {
         if (method_exists($viewable, 'getKey')) {
-            $keys = session()->get("{$this->sessionPrefix}." . get_class($viewable));
+            $keys = session()->get("{$this->sessionPrefix}.".get_class($viewable));
             if (!is_array($keys)) {
                 $keys = [];
             }
@@ -41,52 +40,31 @@ class RecentlyViewed
     }
 
     /**
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     * @throws \RecentlyViewed\Exceptions\ShouldBeViewableException
+     * @return Collection Eloquent collection of items.
+     * @throws ShouldBeViewableException
      */
-    public function getQuery(Viewable|string $viewable): ?Builder
+    public function get(Viewable|string $viewable, ?int $limit = null): Collection
     {
-        if (!($viewable instanceof Viewable) && is_string($viewable)) {
-            $viewable = new $viewable();
-        }
-        if (!($viewable instanceof Viewable)) {
-            throw new ShouldBeViewableException('Entity should implement Viewable interface');
+        throw_if(
+            !is_a($viewable, Viewable::class, true),
+            new ShouldBeViewableException('Entity should implement Viewable interface.')
+        );
+
+        if (is_string($viewable)) {
+            $viewable = app()->make($viewable);
         }
 
-        $keys = session()->get("{$this->sessionPrefix}.".get_class($viewable), []);
+        $keys = session()->get("{$this->sessionPrefix}.".get_class($viewable));
 
         if (!is_array($keys)) {
             $keys = [];
         }
 
-        return $viewable->whereRecentlyViewedIn($keys);
-    }
-
-    /**
-     * @throws ShouldBeViewableException
-     */
-    public function get(Viewable|string $viewable, ?int $limit = null): Collection
-    {
-        if (!($viewable instanceof Viewable)) {
-            $viewable = new $viewable();
-        }
-        if (!($viewable instanceof Viewable)) {
-            throw new ShouldBeViewableException('Entity should implement Viewable interface');
-        }
-
-        $query = $this->getQuery($viewable);
-
-        if ($query) {
-            /** * @psalm-suppress InvalidReturnStatement */
-            return $query->take($limit ?? $viewable->getRecentlyViewsLimit())->get();
-        }
-
-        if (method_exists($viewable, 'makeQuery')) {
-            return $viewable->makeQuery($query);
-        }
-
-        return collect([]);
+        return $viewable
+                   ->whereRecentlyViewedIn($keys)
+                   ?->take($limit ?? $viewable->getRecentlyViewsLimit())
+                   ->get()
+                   ->sortBy(fn ($model) => array_search($model->getKey(), $keys)) ?? collect([]);
     }
 
     /**
@@ -94,11 +72,13 @@ class RecentlyViewed
      */
     public function clear(Viewable|string $viewable): static
     {
-        if (!($viewable instanceof Viewable)) {
-            $viewable = new $viewable();
-        }
-        if (!($viewable instanceof Viewable)) {
-            throw new ShouldBeViewableException('Entity should implement Viewable interface');
+        throw_if(
+            !is_a($viewable, Viewable::class, true),
+            new ShouldBeViewableException('Entity should implement Viewable interface.')
+        );
+
+        if (is_string($viewable)) {
+            $viewable = app()->make($viewable);
         }
 
         session()->forget("{$this->sessionPrefix}.".get_class($viewable));

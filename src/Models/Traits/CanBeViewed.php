@@ -22,10 +22,7 @@ trait CanBeViewed
         $values = array_filter($values, fn ($v) => (is_int($v) || is_string($v)));
 
         if (count($values)) {
-            $values_ordered = implode(',', $values);
-
-            return static::whereIn($this->getKeyName(), $values)
-                         ->orderByRaw("FIELD({$this->getKeyName()}, {$values_ordered})");
+            return static::whereIn($this->getKeyName(), $values);
         }
 
         return null;
