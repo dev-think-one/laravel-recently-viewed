@@ -53,16 +53,8 @@ use RecentlyViewed\Models\Traits\CanBeViewed;
 
 class Product extends Model implements Viewable
 {
+    // implement interface
     use CanBeViewed;
-}
-
-// or
-
-use RecentlyViewed\Models\Contracts\Viewable;
-
-class Property implements Viewable
-{ 
-   // implement interface
 }
 ```
 
@@ -91,9 +83,10 @@ class ProductsViewComposer
             'recentlyViewedProductsWithoutLast' => \RecentlyViewed\Facades\RecentlyViewed::get(Product::class)->slice(1),
         ]);
         // or
-        $query = \RecentlyViewed\Facades\RecentlyViewed::getQuery(Product::class);
         $view->with([
-            'recentlyViewedProductsFiltered' => $query?$query->where('not_display_in_recently_list', false)->get():collect([]),
+            'recentlyViewedProductsFiltered' => \RecentlyViewed\Facades\RecentlyViewed::getQuery(Product::class)
+            ?->where('not_display_in_recently_list', false)->get()
+            ??collect([]),
         ]);
     }
 }
