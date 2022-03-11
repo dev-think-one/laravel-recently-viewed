@@ -16,8 +16,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
             $this->registerMigrations();
         }
-
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'recently-viewed');
     }
 
     public function register()
