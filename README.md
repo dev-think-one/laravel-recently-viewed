@@ -101,7 +101,7 @@ class ProductsViewComposer
 
 ## Add persist storage
 
-You can enable migration and run the migrations with:
+You can enable migration and run the migrations with adding this to `register()` in AppServiceProvider or any other service provider:
 
 ```php
 \RecentlyViewed\PersistManager::enableMigrations();
@@ -109,7 +109,7 @@ You can enable migration and run the migrations with:
 
 ```bash
 php artisan migrate
-``
+```
 
 Configuration in *.env*
 
