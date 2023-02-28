@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Builder;
  */
 trait CanBeViewed
 {
-
     /**
      * @param  array  $values
      *

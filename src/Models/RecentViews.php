@@ -9,7 +9,7 @@ class RecentViews extends Model
 {
     protected $guarded = [];
 
-    public function getTable()
+    public function getTable(): string
     {
         return config('recently-viewed.persist_table');
     }
