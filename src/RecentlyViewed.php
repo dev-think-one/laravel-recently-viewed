@@ -21,13 +21,13 @@ class RecentlyViewed
     public function add(Viewable $viewable): static
     {
         if (method_exists($viewable, 'getKey')) {
-            $keys = Session::get("{$this->sessionPrefix}.".get_class($viewable));
+            $keys = Session::get("{$this->sessionPrefix}." . get_class($viewable));
             if (!is_array($keys)) {
                 $keys = [];
             }
             array_unshift($keys, $viewable->getKey());
             $keys = array_slice(array_unique($keys), 0, $viewable->getRecentlyViewsLimit());
-            Session::put("{$this->sessionPrefix}.".get_class($viewable), $keys);
+            Session::put("{$this->sessionPrefix}." . get_class($viewable), $keys);
 
             if (PersistManager::isEnabled()) {
                 $this->persist($viewable, $keys);
@@ -52,7 +52,7 @@ class RecentlyViewed
             $viewable = app()->make($viewable);
         }
 
-        $keys = Session::get("{$this->sessionPrefix}.".get_class($viewable));
+        $keys = Session::get("{$this->sessionPrefix}." . get_class($viewable));
 
         if (!is_array($keys)) {
             $keys = [];
@@ -79,7 +79,7 @@ class RecentlyViewed
             $viewable = app()->make($viewable);
         }
 
-        Session::forget("{$this->sessionPrefix}.".get_class($viewable));
+        Session::forget("{$this->sessionPrefix}." . get_class($viewable));
 
         if (PersistManager::isEnabled()) {
             $this->clearPersist($viewable);
@@ -126,9 +126,18 @@ class RecentlyViewed
 
     protected function getViewer(): ?Viewer
     {
-        if (($user = Auth::user())
-            && $user instanceof Viewer) {
-            return $user;
+        $guards = array_keys(config('auth.guards'));
+
+        if (count($guards) > 1) {
+            foreach (array_keys(config('auth.guards')) as $guard) {
+                if (($user = Auth::guard($guard)->user()) && $user instanceof Viewer) {
+                    return $user;
+                }
+            }
+        } else {
+            if (($user = Auth::user()) && $user instanceof Viewer) {
+                return $user;
+            }
         }
 
         return null;
