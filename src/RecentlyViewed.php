@@ -129,7 +129,7 @@ class RecentlyViewed
         $guards = array_keys(config('auth.guards'));
 
         if (count($guards) > 1) {
-            foreach (array_keys(config('auth.guards')) as $guard) {
+            foreach ($guards as $guard) {
                 if (($user = Auth::guard($guard)->user()) && $user instanceof Viewer) {
                     return $user;
                 }
