@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 use RecentlyViewed\Tests\Fixtures\Models\Country;
 
+/**
+ * @extends Factory<Country>
+ */
 class CountryFactory extends Factory
 {
     /**
@@ -16,11 +19,9 @@ class CountryFactory extends Factory
     protected $model = Country::class;
 
     /**
-     * Define the model's default state.
-     *
-     * @return array
+     * @inheritDoc
      */
-    public function definition()
+    public function definition(): array
     {
         return [
             'id'    => Str::uuid(),

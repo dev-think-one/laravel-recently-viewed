@@ -15,18 +15,18 @@ You can track any number of entities. Each list will be saved separately.
 
 For example:
 
-```
+```php
 "recently_viewed" => array:2 [
-                      "App\Models\Product" => array:2 [
-                        0 => 'a3cda131-e599-4802-84ea-a3dddc19fa8c'
-                        1 => '4413b636-9752-43b3-8361-3ef38c27acf9'
-                      ]
-                      "App\Domain\Property" => array:3 [
-                        0 => 133
-                        1 => 134
-                        2 => 653
-                      ]
-                    ]
+  "App\Models\Product" => array:2 [
+    0 => 'a3cda131-e599-4802-84ea-a3dddc19fa8c'
+    1 => '4413b636-9752-43b3-8361-3ef38c27acf9'
+  ]
+  "App\Domain\Property" => array:3 [
+    0 => 133
+    1 => 134
+    2 => 653
+  ]
+]
 ```
 
 ## Installation
@@ -47,7 +47,7 @@ Configuration in *.env*
 
 ```dotenv
 # Optional
-# RECENTLY_VIEWED_SESSION_PREFIX=recently_viewed
+RECENTLY_VIEWED_SESSION_PREFIX=recently_viewed
 ```
 
 ## Usage example

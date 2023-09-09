@@ -18,9 +18,9 @@ class CreateRecentViewsTables extends Migration
         });
     }
 
-     /**
-     * Reverse the migrations.
-     */
+    /**
+    * Reverse the migrations.
+    */
     public function down()
     {
         Schema::dropIfExists(config('recently-viewed.persist_table'));

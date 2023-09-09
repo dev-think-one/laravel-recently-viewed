@@ -5,5 +5,5 @@ return [
 
     'persist_enabled' => (bool) env('RECENTLY_VIEWED_PERSIST_ENABLED', false),
 
-    'persist_table'   => 'recent_views',
+    'persist_table'   => env('RECENTLY_VIEWED_PERSIST_TABLE', 'recent_views'),
 ];

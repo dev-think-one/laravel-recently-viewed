@@ -5,6 +5,9 @@ namespace RecentlyViewed\Tests\Fixtures\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use RecentlyViewed\Tests\Fixtures\Models\Product;
 
+/**
+ * @extends Factory<Product>
+ */
 class ProductFactory extends Factory
 {
     /**
@@ -15,11 +18,9 @@ class ProductFactory extends Factory
     protected $model = Product::class;
 
     /**
-     * Define the model's default state.
-     *
-     * @return array
+     * @inheritDoc
      */
-    public function definition()
+    public function definition(): array
     {
         return [
             'title' => $this->faker->word(),
