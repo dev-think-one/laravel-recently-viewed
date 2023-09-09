@@ -1,11 +1,11 @@
 # Laravel: Recently Viewed
 
-![Packagist License](https://img.shields.io/packagist/l/yaroslawww/laravel-recently-viewed?color=%234dc71f)
-[![Packagist Version](https://img.shields.io/packagist/v/yaroslawww/laravel-recently-viewed)](https://packagist.org/packages/yaroslawww/laravel-recently-viewed)
-[![Total Downloads](https://img.shields.io/packagist/dt/yaroslawww/laravel-recently-viewed)](https://packagist.org/packages/yaroslawww/laravel-recently-viewed)
-[![Build Status](https://scrutinizer-ci.com/g/yaroslawww/laravel-recently-viewed/badges/build.png?b=master)](https://scrutinizer-ci.com/g/yaroslawww/laravel-recently-viewed/build-status/master)
-[![Code Coverage](https://scrutinizer-ci.com/g/yaroslawww/laravel-recently-viewed/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/yaroslawww/laravel-recently-viewed/?branch=master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yaroslawww/laravel-recently-viewed/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yaroslawww/laravel-recently-viewed/?branch=master)
+![Packagist License](https://img.shields.io/packagist/l/think.studio/laravel-recently-viewed?color=%234dc71f)
+[![Packagist Version](https://img.shields.io/packagist/v/think.studio/laravel-recently-viewed)](https://packagist.org/packages/think.studio/laravel-recently-viewed)
+[![Total Downloads](https://img.shields.io/packagist/dt/think.studio/laravel-recently-viewed)](https://packagist.org/packages/think.studio/laravel-recently-viewed)
+[![Build Status](https://scrutinizer-ci.com/g/dev-think-one/laravel-recently-viewed/badges/build.png?b=main)](https://scrutinizer-ci.com/g/dev-think-one/laravel-recently-viewed/build-status/main)
+[![Code Coverage](https://scrutinizer-ci.com/g/dev-think-one/laravel-recently-viewed/badges/coverage.png?b=main)](https://scrutinizer-ci.com/g/dev-think-one/laravel-recently-viewed/?branch=main)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/dev-think-one/laravel-recently-viewed/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/dev-think-one/laravel-recently-viewed/?branch=main)
 
 Add functionality to save/get in session recently viewed entities
 
@@ -34,7 +34,7 @@ For example:
 You can install the package via composer:
 
 ```bash
-composer require yaroslawww/laravel-recently-viewed
+composer require think.studio/laravel-recently-viewed
 ```
 
 You can publish the config file with:

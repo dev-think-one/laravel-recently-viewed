@@ -1,16 +1,16 @@
 {
-    "name": "yaroslawww/laravel-recently-viewed",
+    "name": "think.studio/laravel-recently-viewed",
     "description": "Package to make quickly recently viewed functionality",
     "keywords": [
         "recently-viewed",
         "laravel-recently-viewed"
     ],
-    "homepage": "https://github.com/yaroslawww/laravel-recently-viewed",
+    "homepage": "https://github.com/dev-think-one/laravel-recently-viewed",
     "license": "MIT",
     "authors": [
         {
             "name": "Yaroslav Georgitsa",
-            "email": "yaroslav.georgitsa@gmail.com",
+            "email": "yg@think.studio",
             "homepage": "https://github.com/yaroslawww",
             "role": "Developer"
         }
