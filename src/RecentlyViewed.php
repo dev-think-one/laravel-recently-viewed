@@ -126,8 +126,10 @@ class RecentlyViewed
 
     protected function getViewer(): ?Viewer
     {
-        if (($user = Auth::user())
-            && $user instanceof Viewer) {
+        if (
+            ($user = Auth::guard(config('recently-viewed.auth_guard'))->user()) &&
+            ($user instanceof Viewer)
+        ) {
             return $user;
         }
 
